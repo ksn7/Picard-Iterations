@@ -1,0 +1,27 @@
+var('s', 't', 'y')
+
+@interact( layout = [ ['func', 'n'], ['t0', 'y0'] ] )
+def picardIterations( func = input_box( default = x, label = "y' =", width = 20 ),
+        t0 = input_box( default = 0, label = "t0", width = 5 ),
+        y0 = input_box( default = 1, label = "y0", width = 5 ),
+        n = input_box( default = 6, label = "number of iterations", width = 5) ):
+            
+    # Define our function for successive approximations
+    def L(f, y, t0, y0) :
+        return y0 + f(s, y(s)).integrate(s, t0, t)
+    
+    # Assign the inputted function to f(t, x)
+    f(t, x) = func.function(x)
+    y(t) = y0
+
+    # For loop, with chosen number of iterations
+    for j in range(n) :
+        y(t) = L( f, y, t0, y0)
+        print y
+        graph = parametric_plot( (t, y), (t0, 40), aspect_ratio = 'automatic' )
+        graph.show()
+        
+    y = function('y')(x)
+    actual = desolve( diff(y, x) - f, y)
+    print actual
+    plot( actual )
