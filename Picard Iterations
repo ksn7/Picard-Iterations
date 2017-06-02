@@ -1,27 +1,76 @@
-var('s', 't', 'y')
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Picard Iterations Method</title>
+    <script src="https://sagecell.sagemath.org/static/jquery.min.js"></script>
+    <script src="https://sagecell.sagemath.org/embedded_sagecell.js"></script>
+    <script>
+$(function () {
+    // Make *any* div with class 'compute' a Sage cell
+    sagecell.makeSagecell({inputLocation: 'div.compute',
+    						template:       sagecell.templates.minimal,
+                           evalButtonText: 'Launch the Interactive Applet Now'});
+});
+    </script>
+  </head>
+  <body style="width: 1000px;">
 
-@interact( layout = [ ['func', 'n'], ['t0', 'y0'] ] )
+  <h1>Picard Iterations: Method of Successive Approximations</h1>
+
+<p>An Interactive Applet powered by Sage and MathJax.</p>
+<p>(By Kelsey Norman with HTML code by Prof. Gregory V. Bard)</p>
+
+<hr>
+
+<div class="compute">
+<script type="text/x-sage">
+
+var('s', 't', 'y', '_C')
+
+@interact( layout = [ ['func', 'n', 't0', 'y0'], ['x_min', 'x_max', 'y_min', 'y_max'] ] )
 def picardIterations( func = input_box( default = x, label = "y' =", width = 20 ),
         t0 = input_box( default = 0, label = "t0", width = 5 ),
         y0 = input_box( default = 1, label = "y0", width = 5 ),
-        n = input_box( default = 6, label = "number of iterations", width = 5) ):
+        n = input_box( default = 6, label = "number of iterations", width = 5),
+        x_min = input_box( default = 0, label = "x min", width = 5 ), 
+        x_max = input_box( default = 20, label = "x max", width = 5 ), 
+        y_min = input_box( default = 0, label = "y min", width = 5 ), 
+        y_max = input_box( default = 200, label = "y max", width = 5 ) ):
             
     # Define our function for successive approximations
     def L(f, y, t0, y0) :
         return y0 + f(s, y(s)).integrate(s, t0, t)
     
     # Assign the inputted function to f(t, x)
-    f(t, x) = func.function(x)
+    f(t, x) = func.function(x,t)
     y(t) = y0
 
     # For loop, with chosen number of iterations
     for j in range(n) :
         y(t) = L( f, y, t0, y0)
+        print "Iteration " + str(j) + ": " 
         print y
-        graph = parametric_plot( (t, y), (t0, 40), aspect_ratio = 'automatic' )
-        graph.show()
         
+    final_iteration = parametric_plot( (t, y), (t0, x_max), ymin = y_min, ymax = y_max, aspect_ratio = 'automatic', legend_label = "Final Iteration" )
+   
     y = function('y')(x)
-    actual = desolve( diff(y, x) - f, y)
-    print actual
-    plot( actual )
+    actual = desolve( diff(y, x) - f, y) - _C
+    print "The actual differential equation is y = " + str(actual)
+    slope_field = plot_slope_field( derivative(actual), (x, x_min, x_max), (y, y_min, y_max) )
+    
+#    graph = final_iteration + slope_field +
+#    graph.show()
+    
+    solved = plot(actual, color = 'red', xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max, legend_label = "Actual DiffEQ" )
+    graph2 = solved + slope_field + final_iteration
+    graph2.show()
+
+</script>
+</div>
+
+<hr>
+Last modified on June 2nd, 2017.
+</body>
+</html>
