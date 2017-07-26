@@ -34,9 +34,13 @@ $(function () {
 </script>
 
 <div class="latex">
-    \textrm{This demonstrates the Picard Iterations method of approximating the solution to a differential equation. }
+    \textrm{For initial value problems } y' = f(t,y), \, y(t_0) = y_0  \textrm{ where the fundamental theorem }
     \\
-    \textrm{Approximations are found using the formula } y_{n+1} = y_0 + \int_{x_0}^x f(t, y_n(t)) \, dt \textrm{ for } n \leq 1.
+    \textrm{guarantees a unique solution, the method of successive approximation to the solution via Picard Iterations }
+    \\
+    \phi_0(t) = y_0, \, \phi_{n+1} = y_0 + \int_{t_0}^t f(s, \phi_n(s)) \, ds, \textrm{ for } n = 0, 1, 2, \dots
+    \\
+    \textrm{yields a sequence of functions } \phi_n(t) \textrm{ which converges, at least in the vicinity of } t = t_0, \textrm{ to the true solution.}
 </div>
 
 <hr>
