@@ -24,46 +24,64 @@ $(function () {
 
 <hr>
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<script src="jquery.jslatex.js"></script>
+
+<script>
+$(function () {
+    $(".latex").latex();
+});
+</script>
+
+<div class="latex">
+    \textrm{This demonstrates the Picard Iterations method of approximating the solution to a differential equation. }
+    \\
+    \textrm{Approximations are found using the formula } y_{n+1} = y_0 + \int_{x_0}^x f(t, y_n(t)) \, dt \textrm{ for } n \leq 1.
+</div>
+
+<hr>
+
 <div class="compute">
 <script type="text/x-sage">
 
-var('s', 't', 'y', '_C')
-
-@interact( layout = [ ['func', 'n', 't0', 'y0'], ['x_min', 'x_max', 'y_min', 'y_max'] ] )
-def picardIterations( func = input_box( default = x, label = "y' =", width = 20 ),
-        t0 = input_box( default = 0, label = "t0", width = 5 ),
-        y0 = input_box( default = 1, label = "y0", width = 5 ),
+var('s t y')       
+@interact( layout = [['func', 'n'], ['t0', 't_min', 't_max'], ['y0', 'y_min', 'y_max']] )
+def picardIterations( func = input_box( default = y, label = "y'=f(t,y)=", width = 15 ),
+        t0 = input_box( default = 0, label = "$t_0$", width = 5 ),
+        y0 = input_box( default = 1, label = "$y_0$", width = 5 ),
         n = input_box( default = 6, label = "number of iterations", width = 5),
-        x_min = input_box( default = 0, label = "x min", width = 5 ), 
-        x_max = input_box( default = 20, label = "x max", width = 5 ), 
-        y_min = input_box( default = 0, label = "y min", width = 5 ), 
-        y_max = input_box( default = 200, label = "y max", width = 5 ) ):
+        t_min = input_box( default = 0, label = "$t_{\mbox{min}}$", width = 5 ), 
+        t_max = input_box( default = 5, label = "$t_{\mbox{max}}$", width = 5 ), 
+        y_min = input_box( default = 0, label = "$y_{\mbox{min}}$", width = 5 ), 
+        y_max = input_box( default = 200, label = "$y_{\mbox{max}}$", width = 5 ) ):
             
     # Define our function for successive approximations
     def L(f, y, t0, y0) :
         return y0 + f(s, y(s)).integrate(s, t0, t)
     
     # Assign the inputted function to f(t, x)
-    f(t, x) = func.function(x,t)
-    y(t) = y0
+    f(t, y) = func.function(t,y)
+    phi(t) = y0
 
+    myExpr = LatexExpr(r"\phi_0(t) = ")
+    show( myExpr + str(phi(t)))
     # For loop, with chosen number of iterations
     for j in range(n) :
-        y(t) = L( f, y, t0, y0)
-        print "Iteration " + str(j) + ": " 
-        print y
+        k = j+1
+        phi(t) = L( f, phi, t0, y0)
+        myExpr = LatexExpr(r"\phi_{% d}(t) = "% k)
+        show( myExpr + str(phi(t)) )
         
-    final_iteration = parametric_plot( (t, y), (t0, x_max), ymin = y_min, ymax = y_max, aspect_ratio = 'automatic', legend_label = "Final Iteration" )
+    final_iteration = plot(phi(t), (t0, t_max), ymin = y_min, ymax = y_max, aspect_ratio = 'automatic', legend_label = "Final Iteration" )
+    #final_iteration.show()
    
-    y = function('y')(x)
-    actual = desolve( diff(y, x) - f, y) - _C
-    print "The actual differential equation is y = " + str(actual)
-    slope_field = plot_slope_field( derivative(actual), (x, x_min, x_max), (y, y_min, y_max) )
+    truey = function('truey')(t)
+    actual = desolve( diff(truey, t) - f(t,truey), truey, [t0,y0])
+    print "The actual solution of the differential equation:\n  y(t) = " + str(actual)
+    slope_field = plot_slope_field( derivative(actual), (t, t_min, t_max), (y, y_min, y_max) )
     
-#    graph = final_iteration + slope_field +
-#    graph.show()
-    
-    solved = plot(actual, color = 'red', xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max, legend_label = "Actual DiffEQ" )
+    solved = plot(actual, color = 'red', xmin = t_min, xmax = t_max, ymin = y_min, ymax = y_max, legend_label = "Actual solution" )
+    #solved = plot(actual, color = 'red', xmin = t_min, xmax = t_max, legend_label = "Actual solution" )
     graph2 = solved + slope_field + final_iteration
     graph2.show()
 
@@ -71,6 +89,6 @@ def picardIterations( func = input_box( default = x, label = "y' =", width = 20 
 </div>
 
 <hr>
-Last modified on June 2nd, 2017.
+Last modified on July 26th, 2017.
 </body>
 </html>
